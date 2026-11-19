@@ -1,6 +1,5 @@
 const Observador = require('./Observador');
 
-// Observador: bitacora de todos los eventos (se suscribe a "*")
 class RegistroAuditoria extends Observador {
   constructor(almacen) {
     super();

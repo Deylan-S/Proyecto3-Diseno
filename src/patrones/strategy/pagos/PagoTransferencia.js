@@ -1,6 +1,6 @@
 const EstrategiaPago = require('./EstrategiaPago');
 
-// Estrategia: transferencia con cuenta IBAN de Costa Rica. Tambien queda pendiente.
+// Estrategia: transferencia con cuenta IBAN de Costa Rica
 class PagoTransferencia extends EstrategiaPago {
   get id() {
     return 'transferencia';
@@ -15,12 +15,11 @@ class PagoTransferencia extends EstrategiaPago {
     const iban = String(datos.iban || '').replace(/\s/g, '').toUpperCase();
     const titular = String(datos.titularCuenta || '').trim();
 
-    // IBAN de Costa Rica: "CR" + 20 dígitos (22 caracteres en total).
     if (!/^CR\d{20}$/.test(iban)) {
-      errores.push({ campo: 'iban', mensaje: 'La cuenta IBAN de Costa Rica empieza con CR y tiene 22 caracteres.' });
+      errores.push({ campo: 'iban', mensaje: 'La cuenta IBAN de Costa Rica empieza con CR y tiene 22 caracteres' });
     }
     if (titular.length < 3) {
-      errores.push({ campo: 'titularCuenta', mensaje: 'Escriba el nombre de la persona dueña de la cuenta.' });
+      errores.push({ campo: 'titularCuenta', mensaje: 'Escriba el nombre de la persona dueña de la cuenta' });
     }
     return errores;
   }

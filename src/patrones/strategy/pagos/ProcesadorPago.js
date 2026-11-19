@@ -2,7 +2,7 @@ const PagoTarjeta = require('./PagoTarjeta');
 const PagoSinpe = require('./PagoSinpe');
 const PagoTransferencia = require('./PagoTransferencia');
 
-// Patron Strategy: contexto. Usa la estrategia que se le asigne para cobrar.
+// Patron Strategy: contexto. Usa la estrategia que se le asigne para cobrar
 class ProcesadorPago {
   constructor(estrategia) {
     this.estrategia = estrategia;
@@ -14,10 +14,10 @@ class ProcesadorPago {
 
   pagar(monto, datos) {
     if (!this.estrategia) {
-      return { exito: false, errores: [{ campo: 'metodoPago', mensaje: 'Elija un método de pago.' }] };
+      return { exito: false, errores: [{ campo: 'metodoPago', mensaje: 'Elija un método de pago' }] };
     }
     if (!(monto > 0)) {
-      return { exito: false, errores: [{ campo: 'general', mensaje: 'El monto a pagar debe ser mayor a cero.' }] };
+      return { exito: false, errores: [{ campo: 'general', mensaje: 'El monto a pagar debe ser mayor a cero' }] };
     }
     const errores = this.estrategia.validar(datos);
     if (errores.length > 0) {

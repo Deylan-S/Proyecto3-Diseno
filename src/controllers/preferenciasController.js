@@ -1,6 +1,3 @@
-// Controlador de las preferencias de lectura (accesibilidad).
-// Se guardan en la sesion y se aplican como clases en la etiqueta <html>,
-// asi funcionan aunque JavaScript este desactivado.
 const { rutaSegura } = require('../utils/helpers');
 
 const OPCIONES = {

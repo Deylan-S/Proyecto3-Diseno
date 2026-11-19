@@ -2,8 +2,8 @@ const Observador = require('./Observador');
 const EVENTOS = require('../tiposEvento');
 const { colones } = require('../../../utils/helpers');
 
-// Observador: manda correos (simulados) al comprador y al vendedor.
-// Se guardan como notificaciones para verlos en la pagina de avisos.
+// Observador: manda correos (simulados) al comprador y al vendedor
+// Se guardan como notificaciones para verlos en la pagina de avisos
 class NotificadorEmail extends Observador {
   constructor(almacen) {
     super();

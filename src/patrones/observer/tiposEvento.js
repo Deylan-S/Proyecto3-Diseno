@@ -1,4 +1,4 @@
-// Nombres de los eventos (los mismos de la arquitectura del proyecto 2)
+// Nombres de los eventos
 module.exports = Object.freeze({
   ORDEN_CREADA: 'OrdenCreada',
   PAGO_RETENIDO: 'PagoRetenido',
