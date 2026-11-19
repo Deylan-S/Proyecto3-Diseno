@@ -1,0 +1,150 @@
+<%- include('../partials/encabezado') %>
+
+<nav aria-label="Ruta de navegación" class="migas">
+  <ol>
+    <% if (usuario.rol === 'vendedor') { %><li><a href="/vendedor">Mi tienda</a></li>
+    <% } else if (usuario.rol === 'admin') { %><li><a href="/admin">Administración</a></li>
+    <% } else { %><li><a href="/ordenes">Mis pedidos</a></li><% } %>
+    <li><a href="/ordenes/<%= orden.id %>" aria-current="page"><%= orden.codigo %></a></li>
+  </ol>
+</nav>
+
+<div class="orden-encabezado">
+  <div>
+    <h1>Pedido <%= orden.codigo %></h1>
+    <p class="texto-suave">Hecho el <%= fecha(orden.fechaCreacion) %> · Compra <%= orden.compraId %> · <%= tienda.nombre %></p>
+  </div>
+  <%- include('../partials/estado', { orden: orden }) %>
+</div>
+
+<% if (orden.estado.codigo === 'cancelada') { %>
+  <p class="aviso aviso--info"><%= orden.historial[orden.historial.length - 1].nota %></p>
+<% } else { %>
+  <nav aria-label="Avance del pedido" class="linea-tiempo">
+    <ol>
+      <% orden.pasos.forEach(function (paso) { %>
+        <li class="<%= paso.completado ? 'hecho' : paso.actual ? 'actual' : '' %>" <%- paso.actual ? 'aria-current="step"' : '' %>>
+          <span class="linea-tiempo__punto" aria-hidden="true"><%= paso.completado ? '✓' : '' %></span>
+          <span class="linea-tiempo__nombre"><%= paso.nombre %><% if (paso.completado) { %><span class="visualmente-oculto"> (completado)</span><% } else if (paso.actual) { %><span class="visualmente-oculto"> (paso actual)</span><% } %></span>
+        </li>
+      <% }) %>
+    </ol>
+  </nav>
+  <p class="orden-descripcion"><%= orden.estado.descripcion %></p>
+<% } %>
+
+<% if (acciones.length) { %>
+  <section class="bloque bloque--destacado" aria-labelledby="titulo-acciones">
+    <h2 id="titulo-acciones">¿Qué sigue?</h2>
+    <div class="acciones-orden">
+      <%- include('../partials/acciones-orden', { orden: orden, acciones: acciones }) %>
+    </div>
+  </section>
+<% } %>
+
+<% if (puedeResenar) { %>
+  <section class="bloque" id="calificar" aria-labelledby="titulo-calificar">
+    <h2 id="titulo-calificar">Califique lo que recibió</h2>
+    <p class="texto-suave">Su opinión ayuda a otras personas a decidir y al vendedor a mejorar.</p>
+    <ul class="lista-calificar">
+      <% orden.items.forEach(function (item) { var hecha = resenasOrden[item.productoId]; %>
+        <li class="calificar-item">
+          <h3><%= item.nombre %></h3>
+          <% if (hecha) { %>
+            <p>
+              <span class="estrellas" aria-hidden="true"><%= estrellas(hecha.calificacion) %></span>
+              <span class="visualmente-oculto"><%= hecha.calificacion %> de 5 estrellas.</span>
+              Ya lo calificó<% if (hecha.comentario) { %>: “<%= hecha.comentario %>”<% } %>
+            </p>
+          <% } else { %>
+            <form method="post" action="/ordenes/<%= orden.id %>/resenas" class="form-resena">
+              <input type="hidden" name="_csrf" value="<%= csrf %>">
+              <input type="hidden" name="productoId" value="<%= item.productoId %>">
+              <fieldset class="calificacion">
+                <legend>¿Cuántas estrellas le da?<span class="visualmente-oculto"> a <%= item.nombre %></span></legend>
+                <div class="calificacion__opciones">
+                  <% [1, 2, 3, 4, 5].forEach(function (n) { %>
+                    <input type="radio" id="cal-<%= item.productoId %>-<%= n %>" name="calificacion" value="<%= n %>" required>
+                    <label for="cal-<%= item.productoId %>-<%= n %>"><span aria-hidden="true"><%= n %> ★</span><span class="visualmente-oculto"><%= n %> <%= n === 1 ? 'estrella' : 'estrellas' %></span></label>
+                  <% }) %>
+                </div>
+              </fieldset>
+              <div class="campo">
+                <label for="comentario-<%= item.productoId %>">Comentario <span class="campo__opcional">(opcional)</span></label>
+                <textarea id="comentario-<%= item.productoId %>" name="comentario" rows="2" maxlength="500"></textarea>
+              </div>
+              <button type="submit" class="boton boton--primario">Publicar reseña<span class="visualmente-oculto"> de <%= item.nombre %></span></button>
+            </form>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  </section>
+<% } %>
+
+<div class="orden-rejilla">
+  <section class="bloque" aria-labelledby="titulo-articulos">
+    <h2 id="titulo-articulos">Artículos</h2>
+    <div class="tabla-contenedor" role="region" aria-label="Tabla de artículos" tabindex="0">
+      <table class="tabla">
+        <thead>
+          <tr><th scope="col">Producto</th><th scope="col" class="num">Cantidad</th><th scope="col" class="num">Precio c/u</th></tr>
+        </thead>
+        <tbody>
+          <% orden.items.forEach(function (item) { %>
+            <tr>
+              <th scope="row"><a href="/producto/<%= item.productoId %>"><%= item.nombre %></a></th>
+              <td class="num"><%= item.cantidad %></td>
+              <td class="num"><%= colones(item.precioUnitario) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+    <dl class="desglose desglose--borde">
+      <% orden.desglose.forEach(function (linea) { %>
+        <div class="<%= linea.monto < 0 ? 'desglose__descuento' : '' %>"><dt><%= linea.concepto %></dt><dd><%= linea.monto < 0 ? '−' + colones(-linea.monto) : colones(linea.monto) %></dd></div>
+      <% }) %>
+      <div class="desglose__total"><dt>Total</dt><dd><%= colones(orden.total) %></dd></div>
+    </dl>
+  </section>
+
+  <div class="orden-lateral">
+    <section class="bloque" aria-labelledby="titulo-entrega">
+      <h2 id="titulo-entrega">Entrega</h2>
+      <dl class="datos">
+        <div><dt>Recibe</dt><dd><%= orden.direccion.nombre %> · <%= orden.direccion.telefono %></dd></div>
+        <div><dt>Dirección</dt><dd><%= orden.direccion.distrito %>, <%= orden.direccion.canton %>, <%= orden.direccion.provincia %>. <%= orden.direccion.senas %></dd></div>
+        <div><dt>Método</dt><dd><%= orden.envio.nombre %> · <%= orden.envio.entrega %></dd></div>
+        <% if (orden.envio.guia) { %><div><dt>Guía</dt><dd><%= orden.envio.guia %></dd></div><% } %>
+      </dl>
+    </section>
+
+    <section class="bloque" aria-labelledby="titulo-pago">
+      <h2 id="titulo-pago">Pago</h2>
+      <dl class="datos">
+        <div><dt>Método</dt><dd><%= orden.pago.metodo %></dd></div>
+        <div><dt>Detalle</dt><dd><%= orden.pago.detalle %></dd></div>
+        <div><dt>Referencia</dt><dd><%= orden.pago.referencia %></dd></div>
+        <% if (orden.liquidacion && usuario.rol !== 'comprador') { %>
+          <div><dt>Pagado al vendedor</dt><dd><%= colones(orden.liquidacion.montoVendedor) %> (comisión <%= colones(orden.liquidacion.comision) %>)</dd></div>
+        <% } %>
+      </dl>
+    </section>
+  </div>
+</div>
+
+<section class="bloque" aria-labelledby="titulo-historial">
+  <h2 id="titulo-historial">Historial</h2>
+  <ol class="historial">
+    <% orden.historial.slice().reverse().forEach(function (evento) { %>
+      <li>
+        <p class="historial__estado"><%= evento.estado %></p>
+        <p><%= evento.nota %></p>
+        <p class="texto-suave"><time datetime="<%= new Date(evento.fecha).toISOString() %>"><%= fecha(evento.fecha) %></time></p>
+      </li>
+    <% }) %>
+  </ol>
+</section>
+
+<%- include('../partials/pie') %>

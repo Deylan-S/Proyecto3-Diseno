@@ -1,0 +1,102 @@
+<%- include('../partials/encabezado') %>
+
+<h1 class="titulo-pagina">Administración</h1>
+
+<dl class="metricas">
+  <div class="metrica"><dt>Ventas (sin canceladas)</dt><dd><%= colones(metricas.ventas) %></dd></div>
+  <div class="metrica"><dt>Comisiones cobradas</dt><dd><%= colones(metricas.comisiones) %></dd></div>
+  <div class="metrica"><dt>Órdenes</dt><dd><%= metricas.ordenes %></dd></div>
+</dl>
+
+<div class="rejilla-2 rejilla-2--ancha">
+  <section class="bloque bloque--destacado" aria-labelledby="titulo-verificar">
+    <h2 id="titulo-verificar">Pagos por verificar <span class="contador"><%= pendientesVerificacion.length %></span></h2>
+    <% if (pendientesVerificacion.length === 0) { %>
+      <p>No hay pagos de SINPE o transferencia pendientes.</p>
+    <% } else { %>
+      <ul class="lista-simple">
+        <% pendientesVerificacion.forEach(function (orden) { %>
+          <li>
+            <p><a href="/ordenes/<%= orden.id %>"><strong><%= orden.codigo %></strong></a> · <%= colones(orden.total) %> · <%= orden.pago.detalle %></p>
+            <div class="acciones-orden"><%- include('../partials/acciones-orden', { orden: orden, acciones: orden.accionesPara('admin') }) %></div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+
+  <section class="bloque bloque--destacado" aria-labelledby="titulo-liquidar">
+    <h2 id="titulo-liquidar">Listos para pagar al vendedor <span class="contador"><%= porLiquidar.length %></span></h2>
+    <% if (porLiquidar.length === 0) { %>
+      <p>No hay entregas confirmadas pendientes de liquidar.</p>
+    <% } else { %>
+      <ul class="lista-simple">
+        <% porLiquidar.forEach(function (orden) { %>
+          <li>
+            <p><a href="/ordenes/<%= orden.id %>"><strong><%= orden.codigo %></strong></a> · <%= tiendas[orden.vendedorId].nombre %> · <%= colones(orden.total) %></p>
+            <div class="acciones-orden"><%- include('../partials/acciones-orden', { orden: orden, acciones: orden.accionesPara('admin') }) %></div>
+          </li>
+        <% }) %>
+      </ul>
+    <% } %>
+  </section>
+</div>
+
+<section class="bloque" aria-labelledby="titulo-ordenes">
+  <div class="bloque__encabezado">
+    <h2 id="titulo-ordenes">Todas las órdenes</h2>
+    <form method="get" action="/admin" class="ordenar" data-autoenviar>
+      <label for="filtro-estado">Filtrar por estado</label>
+      <select id="filtro-estado" name="estado">
+        <% estados.forEach(function ([valor, etiqueta]) { %>
+          <option value="<%= valor %>" <%= filtro === valor ? 'selected' : '' %>><%= etiqueta %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="boton boton--secundario boton--pequeno" data-sin-js>Filtrar</button>
+    </form>
+  </div>
+  <div class="tabla-contenedor" role="region" aria-label="Tabla de órdenes" tabindex="0">
+    <table class="tabla">
+      <thead>
+        <tr><th scope="col">Orden</th><th scope="col">Fecha</th><th scope="col">Comprador</th><th scope="col">Tienda</th><th scope="col" class="num">Total</th><th scope="col">Estado</th></tr>
+      </thead>
+      <tbody>
+        <% if (ordenes.length === 0) { %>
+          <tr><td colspan="6">No hay órdenes en este estado.</td></tr>
+        <% } %>
+        <% ordenes.forEach(function (orden) { %>
+          <tr>
+            <th scope="row"><a href="/ordenes/<%= orden.id %>"><%= orden.codigo %></a></th>
+            <td><%= fecha(orden.fechaCreacion) %></td>
+            <td><%= usuarios[orden.compradorId].nombre %></td>
+            <td><%= tiendas[orden.vendedorId].nombre %></td>
+            <td class="num"><%= colones(orden.total) %></td>
+            <td><%- include('../partials/estado', { orden: orden }) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section class="bloque" aria-labelledby="titulo-auditoria">
+  <h2 id="titulo-auditoria">Bitácora de eventos</h2>
+  <p class="texto-suave">Cada cambio de una orden publica un evento; la bitácora es uno de sus observadores.</p>
+  <div class="tabla-contenedor" role="region" aria-label="Tabla de la bitácora" tabindex="0">
+    <table class="tabla tabla--compacta">
+      <thead><tr><th scope="col">Fecha</th><th scope="col">Evento</th><th scope="col">Orden</th><th scope="col">Detalle</th></tr></thead>
+      <tbody>
+        <% auditoria.forEach(function (registro) { %>
+          <tr>
+            <td><%= fecha(registro.fecha) %></td>
+            <td><code><%= registro.evento %></code></td>
+            <td><%= registro.orden %></td>
+            <td><%= registro.detalle %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

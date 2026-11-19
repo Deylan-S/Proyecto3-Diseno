@@ -1,0 +1,40 @@
+<%- include('../partials/encabezado') %>
+
+<%- include('../partials/pasos-compra', { paso: 3 }) %>
+
+<section class="confirmacion" aria-labelledby="titulo-confirmacion">
+  <svg class="confirmacion__icono" viewBox="0 0 64 64" width="64" height="64" aria-hidden="true" focusable="false"><circle cx="32" cy="32" r="30" fill="#146c43"/><path d="m19 33 9 9 17-19" fill="none" stroke="#fff" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <h1 id="titulo-confirmacion" tabindex="-1" data-enfocar>¡Listo! Recibimos su compra</h1>
+  <p class="confirmacion__bajada">
+    Número de compra <strong><%= compraId %></strong> por <strong><%= colones(total) %></strong>.
+    Le enviamos los detalles a su correo.
+  </p>
+  <% if (ordenes.length > 1) { %>
+    <p>Como compró en <%= ordenes.length %> tiendas, se crearon <%= ordenes.length %> pedidos. Cada tienda le envía su parte.</p>
+  <% } %>
+</section>
+
+<ul class="lista-tarjetas">
+  <% ordenes.forEach(function (orden) { %>
+    <li class="tarjeta-orden">
+      <div class="tarjeta-orden__encabezado">
+        <h2><a href="/ordenes/<%= orden.id %>">Pedido <%= orden.codigo %></a></h2>
+        <%- include('../partials/estado', { orden: orden }) %>
+      </div>
+      <p><%= tiendas[orden.vendedorId].nombre %> · <%= orden.cantidadArticulos %> <%= orden.cantidadArticulos === 1 ? 'artículo' : 'artículos' %> · <strong><%= colones(orden.total) %></strong></p>
+      <p class="texto-suave"><%= orden.pago.detalle %> · Envío: <%= orden.envio.nombre %> (<%= orden.envio.entrega %>)</p>
+      <% if (orden.estado.codigo === 'pendiente_pago') { %>
+        <p class="aviso-en-linea">Estamos verificando su pago por <%= orden.pago.metodo %>. Le avisamos apenas se confirme.</p>
+      <% } else { %>
+        <p class="aviso-en-linea aviso-en-linea--exito">Pago confirmado y retenido. El vendedor ya está preparando su pedido.</p>
+      <% } %>
+    </li>
+  <% }) %>
+</ul>
+
+<p class="acciones-pagina">
+  <a href="/ordenes" class="boton boton--primario">Ver mis pedidos</a>
+  <a href="/" class="boton boton--secundario">Seguir comprando</a>
+</p>
+
+<%- include('../partials/pie') %>

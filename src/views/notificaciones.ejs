@@ -1,0 +1,36 @@
+<%- include('partials/encabezado') %>
+
+<h1 class="titulo-pagina">Notificaciones</h1>
+<p class="texto-suave">Copia de los correos y mensajes de texto que le enviamos (simulados).</p>
+
+<% if (notificaciones.length === 0) { %>
+  <div class="vacio"><h2>No tiene notificaciones</h2><p>Aquí verá los avisos sobre sus pedidos.</p></div>
+<% } else { %>
+  <ul class="notificaciones">
+    <% notificaciones.forEach(function (n) { %>
+      <li class="notificacion <%= n.nueva ? 'notificacion--nueva' : '' %>">
+        <span class="notificacion__canal notificacion__canal--<%= n.canal %>">
+          <% if (n.canal === 'sms') { %>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><rect x="7" y="2.5" width="10" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <% } else { %>
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" focusable="false"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="m4 7 8 6 8-6" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          <% } %>
+          <span><%= n.canal === 'sms' ? 'SMS' : 'Correo' %></span>
+        </span>
+        <div class="notificacion__cuerpo">
+          <h2 class="notificacion__asunto">
+            <% if (n.nueva) { %><span class="insignia insignia--suave">Nueva</span><% } %>
+            <%= n.asunto %>
+          </h2>
+          <p><%= n.mensaje %></p>
+          <p class="texto-suave">
+            <time datetime="<%= new Date(n.fecha).toISOString() %>"><%= fecha(n.fecha) %></time>
+            <% if (n.ordenId) { %> · <a href="/ordenes/<%= n.ordenId %>">Ver pedido</a><% } %>
+          </p>
+        </div>
+      </li>
+    <% }) %>
+  </ul>
+<% } %>
+
+<%- include('partials/pie') %>

@@ -1,0 +1,76 @@
+<%- include('../partials/encabezado') %>
+
+<% if (!hayFiltros) { %>
+  <section class="portada" aria-labelledby="titulo-portada">
+    <div class="portada__texto">
+      <p class="portada__antetitulo">Hecho en Costa Rica</p>
+      <h1 id="titulo-portada">Lo mejor del país, directo de quien lo hace</h1>
+      <p class="portada__bajada">Café de altura, cacao del Caribe y artesanía de Sarchí. Pague con tarjeta, SINPE Móvil o transferencia: el vendedor recibe el dinero cuando usted confirma la entrega.</p>
+    </div>
+    <ul class="beneficios">
+      <li>
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="m8.5 12 2.5 2.5 4.5-5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span><strong>Pago protegido</strong> hasta la entrega</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><rect x="7" y="2.5" width="10" height="19" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M11 18h2" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+        <span><strong>SINPE Móvil</strong>, tarjeta o transferencia</span>
+      </li>
+      <li>
+        <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" focusable="false"><path d="M2 6h11v10H2zM13 9h4l3 3v4h-7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="6" cy="17.5" r="2" fill="#fff" stroke="currentColor" stroke-width="2"/><circle cx="17" cy="17.5" r="2" fill="#fff" stroke="currentColor" stroke-width="2"/></svg>
+        <span><strong>Envíos</strong> a las 7 provincias</span>
+      </li>
+    </ul>
+  </section>
+<% } else { %>
+  <h1 class="titulo-pagina"><%= titulo %></h1>
+<% } %>
+
+<section aria-labelledby="titulo-productos" class="catalogo">
+  <div class="catalogo__barra">
+    <h2 id="titulo-productos" class="<%= hayFiltros ? 'visualmente-oculto' : '' %>">Productos</h2>
+
+    <nav aria-label="Categorías" class="categorias">
+      <ul>
+        <li><a href="/<%= filtros.q ? '?q=' + encodeURIComponent(filtros.q) : '' %>" class="chip" <%- !filtros.categoria ? 'aria-current="true"' : '' %>>Todas</a></li>
+        <% categorias.forEach(function (categoria) { %>
+          <li>
+            <a href="/?categoria=<%= encodeURIComponent(categoria) %><%= filtros.q ? '&q=' + encodeURIComponent(filtros.q) : '' %>"
+               class="chip" <%- filtros.categoria === categoria ? 'aria-current="true"' : '' %>><%= categoria %></a>
+          </li>
+        <% }) %>
+      </ul>
+    </nav>
+
+    <form method="get" action="/" class="ordenar" data-autoenviar>
+      <% if (filtros.q) { %><input type="hidden" name="q" value="<%= filtros.q %>"><% } %>
+      <% if (filtros.categoria) { %><input type="hidden" name="categoria" value="<%= filtros.categoria %>"><% } %>
+      <label for="orden">Ordenar por</label>
+      <select id="orden" name="orden">
+        <% Object.entries(ordenes).forEach(function ([clave, opcion]) { %>
+          <option value="<%= clave %>" <%= filtros.orden === clave ? 'selected' : '' %>><%= opcion.etiqueta %></option>
+        <% }) %>
+      </select>
+      <button type="submit" class="boton boton--secundario boton--pequeno" data-sin-js>Aplicar</button>
+    </form>
+  </div>
+
+  <p class="catalogo__conteo" role="status">
+    <%= productos.length === 1 ? '1 producto' : productos.length + ' productos' %><% if (hayFiltros) { %> · <a href="/">Quitar filtros</a><% } %>
+  </p>
+
+  <% if (productos.length === 0) { %>
+    <div class="vacio">
+      <h2>No encontramos productos con esa búsqueda</h2>
+      <p>Pruebe con otra palabra, por ejemplo <a href="/?q=café">café</a> o <a href="/?q=chocolate">chocolate</a>, o <a href="/">vea todo el catálogo</a>.</p>
+    </div>
+  <% } else { %>
+    <ul class="rejilla-productos">
+      <% productos.forEach(function (producto) { %>
+        <li><%- include('../partials/tarjeta-producto', { producto: producto, tienda: tiendas[producto.vendedorId], calificacion: calificaciones[producto.id] }) %></li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<%- include('../partials/pie') %>

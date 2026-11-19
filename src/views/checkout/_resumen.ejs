@@ -1,0 +1,26 @@
+<% cotizacion.grupos.forEach(function (grupo) { %>
+  <section class="resumen-grupo" aria-label="Pedido de <%= grupo.tienda %>">
+    <h3><%= grupo.tienda %></h3>
+    <ul class="resumen-grupo__items">
+      <% grupo.lineas.forEach(function (linea) { %>
+        <li><span><%= linea.cantidad %> × <%= linea.producto.nombre %></span></li>
+      <% }) %>
+    </ul>
+    <dl class="desglose">
+      <% grupo.desglose.forEach(function (linea) { %>
+        <div class="<%= linea.monto < 0 ? 'desglose__descuento' : '' %>">
+          <dt><%= linea.concepto %></dt>
+          <dd><%= linea.monto < 0 ? '−' + colones(-linea.monto) : colones(linea.monto) %></dd>
+        </div>
+      <% }) %>
+      <% if (!grupo.envio) { %>
+        <div class="desglose__pendiente"><dt>Envío</dt><dd>Elija la provincia</dd></div>
+      <% } %>
+    </dl>
+    <% if (grupo.envio) { %><p class="resumen-grupo__entrega">Llega en <%= grupo.envio.entrega %></p><% } %>
+  </section>
+<% }) %>
+<div class="resumen__total">
+  <span>Total a pagar</span>
+  <strong data-total><%= colones(cotizacion.total) %></strong>
+</div>

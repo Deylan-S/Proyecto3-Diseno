@@ -1,0 +1,119 @@
+<%- include('../partials/encabezado') %>
+
+<%- include('../partials/pasos-compra', { paso: 2 }) %>
+
+<h1 class="titulo-pagina">Envío y pago</h1>
+
+<%- include('../partials/resumen-errores') %>
+
+<form method="post" action="/checkout" class="checkout" novalidate data-checkout>
+  <input type="hidden" name="_csrf" value="<%= csrf %>">
+
+  <div class="checkout__pasos">
+    <fieldset class="bloque">
+      <legend><span class="bloque__numero" aria-hidden="true">1</span> ¿Dónde lo entregamos?</legend>
+      <div class="rejilla-2">
+        <%- include('../partials/campo', { nombre: 'nombre', etiqueta: 'Nombre de quien recibe', valor: valores.nombre, autocomplete: 'name', maxlength: 80 }) %>
+        <%- include('../partials/campo', { nombre: 'telefono', etiqueta: 'Teléfono', tipo: 'tel', valor: valores.telefono, autocomplete: 'tel-national', inputmode: 'tel', ayuda: '8 dígitos, por ejemplo 8888-1234', maxlength: 9 }) %>
+      </div>
+      <div class="rejilla-3">
+        <%- include('../partials/campo', { nombre: 'provincia', etiqueta: 'Provincia', tipo: 'select', opciones: provincias, valor: valores.provincia, autocomplete: 'address-level1' }) %>
+        <%- include('../partials/campo', { nombre: 'canton', etiqueta: 'Cantón', valor: valores.canton, autocomplete: 'address-level2', maxlength: 60 }) %>
+        <%- include('../partials/campo', { nombre: 'distrito', etiqueta: 'Distrito', valor: valores.distrito, autocomplete: 'address-level3', maxlength: 60 }) %>
+      </div>
+      <%- include('../partials/campo', { nombre: 'senas', etiqueta: 'Otras señas', tipo: 'textarea', valor: valores.senas, autocomplete: 'street-address', ayuda: 'Por ejemplo: 100 m norte de la iglesia, casa verde con portón negro.' }) %>
+    </fieldset>
+
+    <fieldset class="bloque <%= errorDe('metodoEnvio') ? 'campo--error' : '' %>" id="campo-metodoEnvio" tabindex="-1">
+      <legend><span class="bloque__numero" aria-hidden="true">2</span> ¿Cómo lo quiere recibir?</legend>
+      <% if (errorDe('metodoEnvio')) { %><p class="campo__error"><%= errorDe('metodoEnvio') %></p><% } %>
+      <div class="opciones">
+        <% metodosEnvio.forEach(function (metodo) { %>
+          <div class="opcion">
+            <input type="radio" id="envio-<%= metodo.id %>" name="metodoEnvio" value="<%= metodo.id %>" <%= valores.metodoEnvio === metodo.id ? 'checked' : '' %> aria-describedby="envio-<%= metodo.id %>-desc">
+            <label for="envio-<%= metodo.id %>">
+              <span class="opcion__titulo"><%= metodo.nombre %></span>
+              <span class="opcion__desc" id="envio-<%= metodo.id %>-desc"><%= metodo.descripcion %></span>
+            </label>
+          </div>
+        <% }) %>
+      </div>
+    </fieldset>
+
+    <fieldset class="bloque <%= errorDe('metodoPago') ? 'campo--error' : '' %>" id="campo-metodoPago" tabindex="-1">
+      <legend><span class="bloque__numero" aria-hidden="true">3</span> ¿Cómo quiere pagar?</legend>
+      <% if (errorDe('metodoPago')) { %><p class="campo__error"><%= errorDe('metodoPago') %></p><% } %>
+      <div class="opciones opciones--fila">
+        <% metodosPago.forEach(function (metodo) { %>
+          <div class="opcion">
+            <input type="radio" id="pago-<%= metodo.id %>" name="metodoPago" value="<%= metodo.id %>" <%= valores.metodoPago === metodo.id ? 'checked' : '' %> aria-controls="panel-<%= metodo.id %>">
+            <label for="pago-<%= metodo.id %>"><span class="opcion__titulo"><%= metodo.nombre %></span></label>
+          </div>
+        <% }) %>
+      </div>
+
+      <div class="panel-pago" id="panel-tarjeta" data-panel-pago="tarjeta">
+        <h3 class="panel-pago__titulo">Datos de la tarjeta</h3>
+        <%- include('../partials/campo', { nombre: 'titular', etiqueta: 'Nombre en la tarjeta', valor: valores.titular, autocomplete: 'cc-name', condicional: true, maxlength: 60 }) %>
+        <%- include('../partials/campo', { nombre: 'numeroTarjeta', etiqueta: 'Número de tarjeta', valor: '', autocomplete: 'cc-number', inputmode: 'numeric', condicional: true, maxlength: 23, ayuda: 'Para probar use 4111 1111 1111 1111. La 4000 0000 0000 0002 simula un rechazo.' }) %>
+        <div class="rejilla-2">
+          <%- include('../partials/campo', { nombre: 'vencimiento', etiqueta: 'Vencimiento', valor: valores.vencimiento, autocomplete: 'cc-exp', inputmode: 'numeric', placeholder: 'MM/AA', condicional: true, maxlength: 5, ayuda: 'Mes y año, MM/AA', ancho: 'corto' }) %>
+          <%- include('../partials/campo', { nombre: 'cvv', etiqueta: 'Código de seguridad (CVV)', tipo: 'password', valor: '', autocomplete: 'cc-csc', inputmode: 'numeric', condicional: true, maxlength: 4, ayuda: '3 o 4 dígitos al reverso', ancho: 'corto' }) %>
+        </div>
+        <p class="nota-segura">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><rect x="5" y="10" width="14" height="10" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M8 10V7a4 4 0 0 1 8 0v3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+          No guardamos el número de su tarjeta: la pasarela lo convierte en un código seguro.
+        </p>
+      </div>
+
+      <div class="panel-pago" id="panel-sinpe" data-panel-pago="sinpe">
+        <h3 class="panel-pago__titulo">Pago con SINPE Móvil</h3>
+        <p>Envíe el total al número <strong class="dato-copiable"><%= numeroSinpe %></strong> a nombre de MercaTico S.A. y escriba el comprobante.</p>
+        <div class="rejilla-2">
+          <%- include('../partials/campo', { nombre: 'telefonoSinpe', etiqueta: 'Su número de celular', tipo: 'tel', valor: valores.telefonoSinpe, autocomplete: 'tel-national', inputmode: 'tel', condicional: true, maxlength: 9 }) %>
+          <%- include('../partials/campo', { nombre: 'comprobante', etiqueta: 'Número de comprobante', valor: valores.comprobante, inputmode: 'numeric', condicional: true, maxlength: 25, ayuda: 'Aparece en el mensaje de confirmación de su banco.' }) %>
+        </div>
+        <p class="nota-segura">Verificamos el depósito y le avisamos por correo y mensaje de texto.</p>
+      </div>
+
+      <div class="panel-pago" id="panel-transferencia" data-panel-pago="transferencia">
+        <h3 class="panel-pago__titulo">Transferencia bancaria</h3>
+        <p>Transfiera a la cuenta IBAN <strong class="dato-copiable">CR05 0152 0200 1026 2840 66</strong> e indique desde cuál cuenta pagó.</p>
+        <%- include('../partials/campo', { nombre: 'iban', etiqueta: 'Su cuenta IBAN', valor: valores.iban, condicional: true, maxlength: 27, placeholder: 'CR00 0000 0000 0000 0000 00', ayuda: 'Empieza con CR y tiene 22 caracteres.' }) %>
+        <%- include('../partials/campo', { nombre: 'titularCuenta', etiqueta: 'Nombre de la persona dueña de la cuenta', valor: valores.titularCuenta, condicional: true, maxlength: 60 }) %>
+      </div>
+    </fieldset>
+  </div>
+
+  <aside class="resumen checkout__resumen" aria-labelledby="titulo-resumen">
+    <h2 id="titulo-resumen">Su pedido</h2>
+
+    <div class="cupon <%= errorDe('cupon') ? 'campo--error' : '' %>">
+      <label for="campo-cupon">Cupón de descuento <span class="campo__opcional">(opcional)</span></label>
+      <p class="campo__error" id="error-cupon" <%- errorDe('cupon') ? '' : 'hidden' %> data-error-cupon><%= errorDe('cupon') || '' %></p>
+      <div class="en-linea">
+        <input id="campo-cupon" name="cupon" type="text" value="<%= valores.cupon %>" maxlength="20" autocomplete="off" spellcheck="false"
+               aria-describedby="error-cupon ayuda-cupon" <%- errorDe('cupon') ? 'aria-invalid="true"' : '' %>>
+        <button type="submit" formaction="/checkout/recalcular" class="boton boton--secundario">Aplicar</button>
+      </div>
+      <p class="campo__ayuda" id="ayuda-cupon">Pruebe con PURAVIDA o BIENVENIDA.</p>
+    </div>
+
+    <div id="resumen-pedido" class="resumen__contenido" aria-live="polite" aria-busy="false" data-resumen>
+      <%- include('_resumen') %>
+    </div>
+
+    <noscript>
+      <button type="submit" formaction="/checkout/recalcular" class="boton boton--secundario boton--ancho">Recalcular total</button>
+    </noscript>
+
+    <button type="submit" class="boton boton--primario boton--ancho boton--grande">Confirmar y pagar</button>
+    <p class="resumen__nota">
+      <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" focusable="false"><path d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></svg>
+      Su dinero queda retenido por MercaTico y se le paga al vendedor solo cuando usted confirma que recibió el pedido.
+    </p>
+    <a href="/carrito" class="enlace-volver">← Volver al carrito</a>
+  </aside>
+</form>
+
+<%- include('../partials/pie') %>

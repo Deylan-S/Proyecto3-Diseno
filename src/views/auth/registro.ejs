@@ -1,0 +1,25 @@
+<%- include('../partials/encabezado') %>
+
+<div class="acceso acceso--uno">
+  <section class="bloque" aria-labelledby="titulo-registro">
+    <h1 id="titulo-registro">Crear cuenta</h1>
+    <p class="texto-suave">Solo toma un minuto. Con su cuenta puede comprar, ver sus pedidos y calificar lo que recibe.</p>
+
+    <%- include('../partials/resumen-errores') %>
+
+    <form method="post" action="/registro" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="volver" value="<%= volver %>">
+      <%- include('../partials/campo', { nombre: 'nombre', etiqueta: 'Nombre completo', valor: valores.nombre, autocomplete: 'name', maxlength: 80 }) %>
+      <%- include('../partials/campo', { nombre: 'email', etiqueta: 'Correo electrónico', tipo: 'email', valor: valores.email, autocomplete: 'email', maxlength: 120, ayuda: 'Ahí le llegan las confirmaciones de sus pedidos.' }) %>
+      <%- include('../partials/campo', { nombre: 'telefono', etiqueta: 'Teléfono', tipo: 'tel', valor: valores.telefono, autocomplete: 'tel-national', inputmode: 'tel', maxlength: 9, ayuda: '8 dígitos, por ejemplo 8888-1234' }) %>
+      <%- include('../partials/campo', { nombre: 'password', etiqueta: 'Contraseña', tipo: 'password', valor: '', autocomplete: 'new-password', ayuda: 'Al menos 8 caracteres, con letras y números.' }) %>
+      <%- include('../partials/campo', { nombre: 'confirmar', etiqueta: 'Repita la contraseña', tipo: 'password', valor: '', autocomplete: 'new-password' }) %>
+      <button type="submit" class="boton boton--primario boton--ancho boton--grande">Crear mi cuenta</button>
+    </form>
+
+    <p class="acceso__alterno">¿Ya tiene cuenta? <a href="/login<%= volver ? '?volver=' + encodeURIComponent(volver) : '' %>">Inicie sesión</a></p>
+  </section>
+</div>
+
+<%- include('../partials/pie') %>

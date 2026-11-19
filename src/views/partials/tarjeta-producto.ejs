@@ -1,0 +1,33 @@
+<article class="tarjeta-producto">
+  <a href="/producto/<%= producto.id %>" class="tarjeta-producto__enlace">
+    <img class="tarjeta-producto__imagen" src="/img/<%= producto.imagen %>" alt="" width="320" height="240" loading="lazy">
+    <h3 class="tarjeta-producto__nombre"><%= producto.nombre %></h3>
+  </a>
+  <p class="tarjeta-producto__tienda">
+    <span class="visualmente-oculto">Vendido por </span><%= tienda ? tienda.nombre : '' %>
+    <span class="tarjeta-producto__lugar"><%= tienda ? tienda.ubicacion : '' %></span>
+  </p>
+  <% if (locals.calificacion && calificacion.cantidad > 0) { %>
+    <p class="tarjeta-producto__calificacion">
+      <span aria-hidden="true"><span class="estrellas">★</span> <%= decimal(calificacion.promedio) %> <span class="texto-suave">(<%= calificacion.cantidad %>)</span></span>
+      <span class="visualmente-oculto">Calificación <%= decimal(calificacion.promedio) %> de 5, <%= calificacion.cantidad %> <%= calificacion.cantidad === 1 ? 'reseña' : 'reseñas' %></span>
+    </p>
+  <% } %>
+  <p class="precio"><%= colones(producto.precioFinal) %> <span class="precio__nota">IVA incluido</span></p>
+  <% if (producto.agotado) { %>
+    <p class="existencias existencias--agotado">Agotado</p>
+  <% } else if (producto.pocasUnidades) { %>
+    <p class="existencias existencias--pocas">Quedan <%= producto.stock %></p>
+  <% } else { %>
+    <p class="existencias">Disponible</p>
+  <% } %>
+  <form method="post" action="/carrito/agregar" class="tarjeta-producto__accion" data-agregar-carrito>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="productoId" value="<%= producto.id %>">
+    <input type="hidden" name="cantidad" value="1">
+    <input type="hidden" name="volver" value="<%= urlActual %>">
+    <button type="submit" class="boton boton--primario boton--ancho" <%= producto.agotado ? 'disabled' : '' %>>
+      <%= producto.agotado ? 'Sin existencias' : 'Agregar al carrito' %><span class="visualmente-oculto">: <%= producto.nombre %></span>
+    </button>
+  </form>
+</article>

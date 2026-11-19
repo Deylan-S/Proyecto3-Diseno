@@ -1,0 +1,16 @@
+<%# Los botones salen del estado actual de la orden (patrón State): orden.accionesPara(rol) %>
+<% acciones.forEach(function (accion) { %>
+  <form method="post" action="/ordenes/<%= orden.id %>/acciones" class="accion-orden <%= accion.pideGuia ? 'accion-orden--guia' : '' %>"
+        <%- accion.peligro ? 'data-confirmar="¿Seguro que quiere cancelar el pedido ' + orden.codigo + '?"' : '' %>>
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="accion" value="<%= accion.id %>">
+    <input type="hidden" name="volver" value="<%= urlActual %>">
+    <% if (accion.pideGuia) { %>
+      <label for="guia-<%= orden.id %>">Número de guía <span class="visualmente-oculto">del pedido <%= orden.codigo %></span></label>
+      <input id="guia-<%= orden.id %>" name="guia" type="text" required minlength="4" maxlength="40" autocomplete="off" spellcheck="false" placeholder="Ej. CR123456789">
+    <% } %>
+    <button type="submit" class="boton <%= accion.peligro ? 'boton--peligro' : 'boton--primario' %>">
+      <%= accion.etiqueta %><span class="visualmente-oculto">: pedido <%= orden.codigo %></span>
+    </button>
+  </form>
+<% }) %>

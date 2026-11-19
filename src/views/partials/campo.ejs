@@ -1,0 +1,42 @@
+<%
+  var error = errorDe(nombre);
+  var idAyuda = locals.ayuda ? 'ayuda-' + nombre : '';
+  var idError = error ? 'error-' + nombre : '';
+  var describe = [idAyuda, idError].filter(Boolean).join(' ');
+  var obligatorio = !locals.opcional && !locals.condicional;
+%>
+<div class="campo <%= error ? 'campo--error' : '' %> <%= locals.clase || '' %>">
+  <label for="campo-<%= nombre %>"><%= etiqueta %><% if (locals.opcional) { %> <span class="campo__opcional">(opcional)</span><% } %></label>
+  <% if (locals.ayuda) { %><p class="campo__ayuda" id="<%= idAyuda %>"><%= ayuda %></p><% } %>
+  <% if (error) { %><p class="campo__error" id="<%= idError %>"><span class="visualmente-oculto">Error: </span><%= error %></p><% } %>
+  <% if (locals.tipo === 'textarea') { %>
+    <textarea id="campo-<%= nombre %>" name="<%= nombre %>" rows="3"
+      <%- locals.autocomplete ? 'autocomplete="' + autocomplete + '"' : '' %>
+      <%- describe ? 'aria-describedby="' + describe + '"' : '' %>
+      <%- error ? 'aria-invalid="true"' : '' %>
+      <%- obligatorio ? 'required' : '' %>><%= locals.valor || '' %></textarea>
+  <% } else if (locals.tipo === 'select') { %>
+    <select id="campo-<%= nombre %>" name="<%= nombre %>"
+      <%- locals.autocomplete ? 'autocomplete="' + autocomplete + '"' : '' %>
+      <%- describe ? 'aria-describedby="' + describe + '"' : '' %>
+      <%- error ? 'aria-invalid="true"' : '' %>
+      <%- obligatorio ? 'required' : '' %>>
+      <option value="">Elija una opción</option>
+      <% opciones.forEach(function (opcion) { %>
+        <option value="<%= opcion %>" <%= opcion === locals.valor ? 'selected' : '' %>><%= opcion %></option>
+      <% }) %>
+    </select>
+  <% } else { %>
+    <input id="campo-<%= nombre %>" name="<%= nombre %>" type="<%= locals.tipo || 'text' %>"
+      value="<%= locals.valor || '' %>"
+      <%- locals.autocomplete ? 'autocomplete="' + autocomplete + '"' : '' %>
+      <%- locals.inputmode ? 'inputmode="' + inputmode + '"' : '' %>
+      <%- locals.maxlength ? 'maxlength="' + maxlength + '"' : '' %>
+      <%- locals.placeholder ? 'placeholder="' + placeholder + '"' : '' %>
+      <%- locals.ancho ? 'class="ancho-' + ancho + '"' : '' %>
+      <%- describe ? 'aria-describedby="' + describe + '"' : '' %>
+      <%- error ? 'aria-invalid="true"' : '' %>
+      <%- obligatorio ? 'required' : '' %>
+      spellcheck="false">
+  <% } %>
+</div>

@@ -1,0 +1,48 @@
+<%- include('../partials/encabezado') %>
+
+<div class="acceso">
+  <section class="bloque" aria-labelledby="titulo-login">
+    <h1 id="titulo-login">Iniciar sesión</h1>
+
+    <% if (locals.errorLogin) { %>
+      <div class="resumen-errores" role="alert" tabindex="-1" data-enfocar>
+        <p><%= errorLogin %></p>
+      </div>
+    <% } %>
+
+    <form method="post" action="/login" novalidate>
+      <input type="hidden" name="_csrf" value="<%= csrf %>">
+      <input type="hidden" name="volver" value="<%= volver %>">
+      <div class="campo">
+        <label for="email">Correo electrónico</label>
+        <input id="email" name="email" type="email" value="<%= email %>" autocomplete="username" required spellcheck="false" <%- locals.errorLogin ? 'aria-invalid="true"' : '' %>>
+      </div>
+      <div class="campo">
+        <label for="password">Contraseña</label>
+        <input id="password" name="password" type="password" autocomplete="current-password" required <%- locals.errorLogin ? 'aria-invalid="true"' : '' %>>
+      </div>
+      <button type="submit" class="boton boton--primario boton--ancho boton--grande">Entrar</button>
+    </form>
+    <p class="acceso__alterno">¿No tiene cuenta? <a href="/registro<%= volver ? '?volver=' + encodeURIComponent(volver) : '' %>">Cree una gratis</a></p>
+  </section>
+
+  <section class="bloque bloque--suave" aria-labelledby="titulo-demo">
+    <h2 id="titulo-demo">Cuentas de prueba</h2>
+    <p>Use estas cuentas para recorrer todo el flujo de la demostración.</p>
+    <div class="tabla-contenedor" role="region" aria-label="Tabla de cuentas de prueba" tabindex="0">
+      <table class="tabla tabla--compacta">
+        <thead><tr><th scope="col">Rol</th><th scope="col">Correo</th><th scope="col">Contraseña</th></tr></thead>
+        <tbody>
+          <tr><th scope="row">Comprador</th><td><code>comprador@mercatico.cr</code></td><td><code>demo1234</code></td></tr>
+          <tr><th scope="row">Vendedor (café)</th><td><code>cafe@mercatico.cr</code></td><td><code>demo1234</code></td></tr>
+          <tr><th scope="row">Vendedor (cacao)</th><td><code>cacao@mercatico.cr</code></td><td><code>demo1234</code></td></tr>
+          <tr><th scope="row">Vendedor (artesanía)</th><td><code>artesania@mercatico.cr</code></td><td><code>demo1234</code></td></tr>
+          <tr><th scope="row">Vendedor (Caribe)</th><td><code>caribe@mercatico.cr</code></td><td><code>demo1234</code></td></tr>
+          <tr><th scope="row">Administración</th><td><code>admin@mercatico.cr</code></td><td><code>admin1234</code></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+
+<%- include('../partials/pie') %>

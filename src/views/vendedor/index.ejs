@@ -1,0 +1,92 @@
+<%- include('../partials/encabezado') %>
+
+<div class="orden-encabezado">
+  <div>
+    <h1><%= tienda.nombre %></h1>
+    <p class="texto-suave"><%= tienda.ubicacion %> · Panel de vendedor</p>
+  </div>
+</div>
+
+<dl class="metricas">
+  <div class="metrica"><dt>Ya recibido</dt><dd><%= colones(metricas.recibido) %></dd></div>
+  <div class="metrica"><dt>Retenido por cobrar</dt><dd><%= colones(metricas.porCobrar) %></dd></div>
+  <div class="metrica"><dt>Pedidos totales</dt><dd><%= metricas.pedidos %></dd></div>
+  <div class="metrica"><dt>Calificación de la tienda</dt><dd><%= metricas.calificacion.cantidad ? decimal(metricas.calificacion.promedio) + ' / 5' : 'Sin reseñas' %><% if (metricas.calificacion.cantidad) { %> <span class="metrica__nota">(<%= metricas.calificacion.cantidad %>)</span><% } %></dd></div>
+</dl>
+
+<section class="bloque bloque--destacado" aria-labelledby="titulo-despachar">
+  <h2 id="titulo-despachar">Por despachar <span class="contador"><%= porDespachar.length %></span></h2>
+  <% if (porDespachar.length === 0) { %>
+    <p>No tiene pedidos pendientes de envío. ¡Todo al día!</p>
+  <% } else { %>
+    <ul class="lista-tarjetas">
+      <% porDespachar.forEach(function (orden) { %>
+        <li class="tarjeta-orden">
+          <div class="tarjeta-orden__encabezado">
+            <h3><a href="/ordenes/<%= orden.id %>">Pedido <%= orden.codigo %></a></h3>
+            <%- include('../partials/estado', { orden: orden }) %>
+          </div>
+          <p>
+            <% orden.items.forEach(function (item, i) { %><%= i ? ', ' : '' %><%= item.cantidad %> × <%= item.nombre %><% }) %>
+          </p>
+          <p class="texto-suave">Para <%= orden.direccion.nombre %>, <%= orden.direccion.provincia %> · <%= orden.envio.nombre %></p>
+          <div class="acciones-orden">
+            <%- include('../partials/acciones-orden', { orden: orden, acciones: orden.accionesPara('vendedor') }) %>
+          </div>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<section class="bloque" aria-labelledby="titulo-proceso">
+  <h2 id="titulo-proceso">Otros pedidos</h2>
+  <% var otros = enProceso.concat(cerradas); %>
+  <% if (otros.length === 0) { %>
+    <p>Todavía no hay más pedidos.</p>
+  <% } else { %>
+    <div class="tabla-contenedor" role="region" aria-label="Tabla de otros pedidos" tabindex="0">
+      <table class="tabla">
+        <thead><tr><th scope="col">Pedido</th><th scope="col">Fecha</th><th scope="col" class="num">Total</th><th scope="col">Estado</th></tr></thead>
+        <tbody>
+          <% otros.forEach(function (orden) { %>
+            <tr>
+              <th scope="row"><a href="/ordenes/<%= orden.id %>"><%= orden.codigo %></a></th>
+              <td><%= fecha(orden.fechaCreacion) %></td>
+              <td class="num"><%= colones(orden.total) %></td>
+              <td><%- include('../partials/estado', { orden: orden }) %></td>
+            </tr>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  <% } %>
+</section>
+
+<section class="bloque" aria-labelledby="titulo-inventario">
+  <div class="bloque__encabezado">
+    <h2 id="titulo-inventario">Inventario</h2>
+    <a href="/vendedor/productos/nuevo" class="boton boton--primario boton--pequeno">+ Agregar producto</a>
+  </div>
+  <div class="tabla-contenedor" role="region" aria-label="Tabla de inventario" tabindex="0">
+    <table class="tabla">
+      <thead><tr><th scope="col">Producto</th><th scope="col" class="num">Precio (IVA incl.)</th><th scope="col" class="num">Existencias</th><th scope="col"><span class="visualmente-oculto">Acciones</span></th></tr></thead>
+      <tbody>
+        <% productos.forEach(function (producto) { %>
+          <tr>
+            <th scope="row"><a href="/producto/<%= producto.id %>"><%= producto.nombre %></a></th>
+            <td class="num"><%= colones(producto.precioFinal) %></td>
+            <td class="num">
+              <% if (producto.agotado) { %><span class="existencias existencias--agotado">Agotado</span>
+              <% } else if (producto.pocasUnidades) { %><span class="existencias existencias--pocas"><%= producto.stock %> (bajo)</span>
+              <% } else { %><%= producto.stock %><% } %>
+            </td>
+            <td><a href="/vendedor/productos/<%= producto.id %>/editar">Editar<span class="visualmente-oculto"> <%= producto.nombre %></span></a></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<%- include('../partials/pie') %>

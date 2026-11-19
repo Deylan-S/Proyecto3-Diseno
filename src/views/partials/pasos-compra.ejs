@@ -1,0 +1,10 @@
+<nav class="pasos-compra" aria-label="Pasos de la compra">
+  <ol>
+    <% ['Carrito', 'Envío y pago', 'Confirmación'].forEach(function (nombre, indice) { var numero = indice + 1; %>
+      <li class="<%= numero < paso ? 'hecho' : numero === paso ? 'actual' : '' %>" <%- numero === paso ? 'aria-current="step"' : '' %>>
+        <span class="pasos-compra__numero" aria-hidden="true"><%= numero < paso ? '✓' : numero %></span>
+        <span><span class="visualmente-oculto">Paso <%= numero %> de 3: </span><%= nombre %><% if (numero < paso) { %><span class="visualmente-oculto"> (completado)</span><% } %></span>
+      </li>
+    <% }) %>
+  </ol>
+</nav>

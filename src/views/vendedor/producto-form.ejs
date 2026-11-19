@@ -1,0 +1,33 @@
+<%- include('../partials/encabezado') %>
+
+<nav aria-label="Ruta de navegación" class="migas">
+  <ol>
+    <li><a href="/vendedor">Mi tienda</a></li>
+    <li><a href="<%= urlActual %>" aria-current="page"><%= producto ? 'Editar producto' : 'Agregar producto' %></a></li>
+  </ol>
+</nav>
+
+<div class="formulario-angosto">
+  <h1><%= producto ? 'Editar producto' : 'Agregar producto' %></h1>
+  <p class="texto-suave"><%= producto ? 'Los cambios se ven de inmediato en el catálogo. Los pedidos ya hechos conservan el precio con que se compraron.' : 'Complete los datos y el producto aparece en el catálogo de una vez.' %></p>
+
+  <%- include('../partials/resumen-errores') %>
+
+  <form method="post" action="<%= producto ? '/vendedor/productos/' + producto.id : '/vendedor/productos' %>" novalidate class="bloque">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <%- include('../partials/campo', { nombre: 'nombre', etiqueta: 'Nombre del producto', valor: valores.nombre, maxlength: 80, ayuda: 'Incluya la presentación, por ejemplo «Café molido, 500 g».' }) %>
+    <%- include('../partials/campo', { nombre: 'descripcion', etiqueta: 'Descripción', tipo: 'textarea', valor: valores.descripcion, ayuda: 'Qué es, de dónde viene y qué lo hace especial.' }) %>
+    <%- include('../partials/campo', { nombre: 'categoria', etiqueta: 'Categoría', tipo: 'select', opciones: categorias, valor: valores.categoria }) %>
+    <div class="rejilla-3">
+      <%- include('../partials/campo', { nombre: 'precioBase', etiqueta: 'Precio sin IVA (₡)', valor: valores.precioBase, inputmode: 'numeric', maxlength: 9, ayuda: precioCliente ? 'El cliente verá ' + colones(precioCliente) + ' con IVA.' : 'El cliente lo verá con el 13 % de IVA.' }) %>
+      <%- include('../partials/campo', { nombre: 'stock', etiqueta: 'Existencias', tipo: 'number', valor: valores.stock, inputmode: 'numeric', ayuda: 'Unidades disponibles.' }) %>
+      <%- include('../partials/campo', { nombre: 'pesoKg', etiqueta: 'Peso (kg)', valor: valores.pesoKg, inputmode: 'decimal', maxlength: 5, ayuda: 'Para calcular el envío.' }) %>
+    </div>
+    <div class="acciones-formulario">
+      <button type="submit" class="boton boton--primario boton--grande"><%= producto ? 'Guardar cambios' : 'Publicar producto' %></button>
+      <a href="/vendedor" class="boton boton--secundario boton--grande">Cancelar</a>
+    </div>
+  </form>
+</div>
+
+<%- include('../partials/pie') %>

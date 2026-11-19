@@ -1,0 +1,38 @@
+<%- include('../partials/encabezado') %>
+
+<h1 class="titulo-pagina">Mis pedidos</h1>
+
+<% if (ordenes.length === 0) { %>
+  <div class="vacio">
+    <h2>Aún no tiene pedidos</h2>
+    <p><a href="/" class="boton boton--primario">Ir al catálogo</a></p>
+  </div>
+<% } else { %>
+  <div class="tabla-contenedor" role="region" aria-labelledby="titulo-tabla-pedidos" tabindex="0">
+    <table class="tabla">
+      <caption id="titulo-tabla-pedidos">Sus pedidos, del más reciente al más antiguo</caption>
+      <thead>
+        <tr>
+          <th scope="col">Pedido</th>
+          <th scope="col">Fecha</th>
+          <th scope="col">Tienda</th>
+          <th scope="col" class="num">Total</th>
+          <th scope="col">Estado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <% ordenes.forEach(function (orden) { %>
+          <tr>
+            <th scope="row"><a href="/ordenes/<%= orden.id %>"><%= orden.codigo %></a></th>
+            <td><%= fecha(orden.fechaCreacion) %></td>
+            <td><%= tiendas[orden.vendedorId].nombre %></td>
+            <td class="num"><%= colones(orden.total) %></td>
+            <td><%- include('../partials/estado', { orden: orden }) %></td>
+          </tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </div>
+<% } %>
+
+<%- include('../partials/pie') %>

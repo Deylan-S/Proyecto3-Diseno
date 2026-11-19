@@ -1,0 +1,18 @@
+<% if (errores && errores.length) { %>
+  <div class="resumen-errores" role="alert" tabindex="-1" id="resumen-errores" data-enfocar>
+    <h2 class="resumen-errores__titulo">
+      <%= errores.length === 1 ? 'Revise este dato para continuar' : 'Revise estos ' + errores.length + ' datos para continuar' %>
+    </h2>
+    <ul>
+      <% errores.forEach(function (error) { %>
+        <li>
+          <% if (error.campo && error.campo !== 'general') { %>
+            <a href="#campo-<%= error.campo %>"><%= error.mensaje %></a>
+          <% } else { %>
+            <%= error.mensaje %>
+          <% } %>
+        </li>
+      <% }) %>
+    </ul>
+  </div>
+<% } %>

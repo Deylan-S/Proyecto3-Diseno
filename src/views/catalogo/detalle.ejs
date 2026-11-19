@@ -1,0 +1,95 @@
+<%- include('../partials/encabezado') %>
+
+<nav aria-label="Ruta de navegación" class="migas">
+  <ol>
+    <li><a href="/">Catálogo</a></li>
+    <li><a href="/?categoria=<%= encodeURIComponent(producto.categoria) %>"><%= producto.categoria %></a></li>
+    <li><a href="/producto/<%= producto.id %>" aria-current="page"><%= producto.nombre %></a></li>
+  </ol>
+</nav>
+
+<article class="detalle">
+  <div class="detalle__imagen">
+    <img src="/img/<%= producto.imagen %>" alt="<%= producto.alt %>" width="640" height="480">
+  </div>
+
+  <div class="detalle__info">
+    <h1><%= producto.nombre %></h1>
+    <p class="detalle__tienda">
+      Vendido por <strong><%= vendedor.tienda.nombre %></strong> · <%= vendedor.tienda.ubicacion %>
+    </p>
+    <% if (calificacion.cantidad > 0) { %>
+      <p class="calificacion-resumen">
+        <span class="estrellas" aria-hidden="true"><%= estrellas(calificacion.promedio) %></span>
+        <%= decimal(calificacion.promedio) %> de 5 · <a href="#resenas"><%= calificacion.cantidad %> <%= calificacion.cantidad === 1 ? 'reseña' : 'reseñas' %></a>
+      </p>
+    <% } else { %>
+      <p class="calificacion-resumen texto-suave">Todavía sin reseñas</p>
+    <% } %>
+
+    <p class="precio precio--grande"><%= colones(producto.precioFinal) %> <span class="precio__nota">IVA incluido</span></p>
+
+    <% if (producto.agotado) { %>
+      <p class="existencias existencias--agotado">Agotado por ahora</p>
+    <% } else if (producto.pocasUnidades) { %>
+      <p class="existencias existencias--pocas">¡Quedan solo <%= producto.stock %>!</p>
+    <% } else { %>
+      <p class="existencias">Disponible · <%= producto.stock %> unidades</p>
+    <% } %>
+
+    <p class="detalle__descripcion"><%= producto.descripcion %></p>
+
+    <% if (!producto.agotado) { %>
+      <form method="post" action="/carrito/agregar" class="detalle__compra" data-agregar-carrito>
+        <input type="hidden" name="_csrf" value="<%= csrf %>">
+        <input type="hidden" name="productoId" value="<%= producto.id %>">
+        <input type="hidden" name="volver" value="<%= urlActual %>">
+        <div class="campo campo--en-linea">
+          <label for="cantidad">Cantidad</label>
+          <input id="cantidad" name="cantidad" type="number" min="1" max="<%= Math.min(producto.stock, 10) %>" value="1" inputmode="numeric" class="ancho-cantidad">
+        </div>
+        <button type="submit" class="boton boton--primario boton--grande">Agregar al carrito</button>
+      </form>
+    <% } %>
+
+    <ul class="garantias">
+      <li><strong>Pago protegido.</strong> El vendedor recibe el dinero cuando usted confirma que le llegó el pedido.</li>
+      <li><strong>Envío a todo el país</strong> con Correos de Costa Rica o courier, o retiro gratis en San José.</li>
+      <li><strong>Devoluciones</strong> según la Ley 7472 de protección al consumidor.</li>
+    </ul>
+  </div>
+</article>
+
+<section aria-labelledby="titulo-resenas" id="resenas" class="bloque resenas">
+  <h2 id="titulo-resenas">Reseñas<% if (calificacion.cantidad > 0) { %> <span class="texto-suave">(<%= calificacion.cantidad %>)</span><% } %></h2>
+  <% if (resenas.length === 0) { %>
+    <p>Nadie ha calificado este producto todavía. Solo pueden escribir reseñas las personas que lo compraron y ya lo recibieron.</p>
+  <% } else { %>
+    <ul class="lista-resenas">
+      <% resenas.forEach(function (resena) { %>
+        <li class="resena">
+          <p class="resena__cabeza">
+            <span class="estrellas" aria-hidden="true"><%= estrellas(resena.calificacion) %></span>
+            <span class="visualmente-oculto"><%= resena.calificacion %> de 5 estrellas.</span>
+            <strong><%= resena.autor %></strong> · <time datetime="<%= new Date(resena.fecha).toISOString() %>"><%= fecha(resena.fecha) %></time>
+          </p>
+          <% if (resena.comentario) { %><p><%= resena.comentario %></p><% } %>
+          <p class="resena__verificada">Compra verificada</p>
+        </li>
+      <% }) %>
+    </ul>
+  <% } %>
+</section>
+
+<% if (relacionados.length) { %>
+  <section aria-labelledby="titulo-relacionados" class="relacionados">
+    <h2 id="titulo-relacionados">Más de <%= producto.categoria %></h2>
+    <ul class="rejilla-productos">
+      <% relacionados.forEach(function (relacionado) { %>
+        <li><%- include('../partials/tarjeta-producto', { producto: relacionado, tienda: tiendas[relacionado.vendedorId], calificacion: calificaciones[relacionado.id] }) %></li>
+      <% }) %>
+    </ul>
+  </section>
+<% } %>
+
+<%- include('../partials/pie') %>
