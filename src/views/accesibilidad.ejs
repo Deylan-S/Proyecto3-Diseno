@@ -1,0 +1,43 @@
+<%- include('partials/encabezado') %>
+
+<article class="texto-largo">
+  <h1>Declaración de accesibilidad</h1>
+  <p class="aviso aviso--info">¿Necesita letra más grande o más contraste? Puede cambiarlo en <a href="/preferencias">Preferencias de lectura</a>.</p>
+  <p>MercaTico busca cumplir las <abbr title="Pautas de Accesibilidad para el Contenido Web">WCAG</abbr> 2.1 en el nivel AA, tal como se definió en la arquitectura del proyecto. Esto es lo que hicimos:</p>
+
+  <h2>Navegación con teclado</h2>
+  <ul>
+    <li>Un enlace «Saltar al contenido principal» aparece al presionar Tab por primera vez.</li>
+    <li>Todo se puede usar con teclado y el foco siempre se ve con un borde grueso de alto contraste.</li>
+    <li>No hay trampas de foco ni elementos que solo respondan al mouse.</li>
+  </ul>
+
+  <h2>Lectores de pantalla</h2>
+  <ul>
+    <li>La página usa regiones (encabezado, navegación, contenido, pie) y una jerarquía de títulos ordenada.</li>
+    <li>Cada campo tiene su etiqueta, su ayuda y su mensaje de error conectados con <code>aria-describedby</code>.</li>
+    <li>Los avisos (agregar al carrito, total actualizado) se anuncian con regiones <code>aria-live</code>.</li>
+    <li>Los pasos de compra y del pedido indican el paso actual con <code>aria-current="step"</code>.</li>
+    <li>Las imágenes informativas tienen texto alternativo; las decorativas se ocultan.</li>
+  </ul>
+
+  <h2>Visión y lectura</h2>
+  <ul>
+    <li>Contraste mínimo de 4,5:1 en texto y 3:1 en bordes de campos y botones.</li>
+    <li>El estado de un pedido nunca depende solo del color: siempre lleva texto.</li>
+    <li>El diseño se adapta al ampliar hasta 200 % y funciona desde pantallas de 320 px.</li>
+    <li>Se respetan las preferencias de «reducir movimiento» del sistema.</li>
+  </ul>
+
+  <h2>Formularios</h2>
+  <ul>
+    <li>Si hay errores, aparece un resumen arriba con enlaces que llevan a cada campo.</li>
+    <li>Los campos usan <code>autocomplete</code> para que el navegador llene nombre, teléfono, dirección y tarjeta.</li>
+    <li>La compra funciona aunque JavaScript esté desactivado.</li>
+  </ul>
+
+  <h2>Conexiones lentas</h2>
+  <p>Las páginas se generan en el servidor, sin librerías pesadas: el catálogo completo pesa menos de 100 KB.</p>
+</article>
+
+<%- include('partials/pie') %>

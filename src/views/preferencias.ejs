@@ -1,0 +1,40 @@
+<%- include('partials/encabezado') %>
+
+<div class="formulario-angosto">
+  <h1>Preferencias de lectura</h1>
+  <p class="texto-suave">Ajuste cómo se ve MercaTico en este navegador. Los cambios se aplican en todas las páginas hasta que cierre la sesión.</p>
+
+  <div class="vista-previa" aria-hidden="true">
+    <p><strong>Vista previa:</strong> Café de Tarrazú tostado medio, 340 g · <span class="precio"><%= colones(5650) %></span></p>
+  </div>
+
+  <form method="post" action="/preferencias" class="bloque">
+    <input type="hidden" name="_csrf" value="<%= csrf %>">
+    <input type="hidden" name="volver" value="<%= volver %>">
+
+    <% [
+      ['texto', 'Tamaño del texto'],
+      ['contraste', 'Contraste de colores'],
+      ['animaciones', 'Movimiento'],
+    ].forEach(function ([clave, titulo]) { %>
+      <fieldset class="grupo-preferencia">
+        <legend><%= titulo %></legend>
+        <div class="opciones opciones--fila">
+          <% Object.entries(opciones[clave]).forEach(function ([valor, etiqueta]) { %>
+            <div class="opcion">
+              <input type="radio" id="<%= clave %>-<%= valor %>" name="<%= clave %>" value="<%= valor %>" <%= actuales[clave] === valor ? 'checked' : '' %>>
+              <label for="<%= clave %>-<%= valor %>"><span class="opcion__titulo"><%= etiqueta %></span></label>
+            </div>
+          <% }) %>
+        </div>
+      </fieldset>
+    <% }) %>
+
+    <div class="acciones-formulario">
+      <button type="submit" class="boton boton--primario boton--grande">Guardar preferencias</button>
+      <a href="<%= volver %>" class="boton boton--secundario boton--grande">Volver</a>
+    </div>
+  </form>
+</div>
+
+<%- include('partials/pie') %>
